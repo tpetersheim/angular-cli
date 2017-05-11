@@ -19,6 +19,7 @@ export interface ServeTaskOptions extends BuildOptions {
   port?: number;
   host?: string;
   proxyConfig?: string;
+  headersConfig?: string;
   liveReload?: boolean;
   publicHost?: string;
   disableHostCheck?: boolean;
@@ -51,6 +52,12 @@ export const baseServeCommandOptions: any = overrideOptions([
     type: 'Path',
     aliases: ['pc'],
     description: 'Proxy configuration file.'
+  },
+  {
+    name: 'headers-config',
+    type: 'Path',
+    aliases: ['hc'],
+    description: 'HTTP headers configuration file.'
   },
   {
     name: 'ssl',

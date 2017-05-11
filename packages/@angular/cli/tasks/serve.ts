@@ -130,6 +130,17 @@ export default Task.extend({
       }
     }
 
+    let headersConfig: { [key: string]: string } = {};
+    if (serveTaskOptions.headersConfig) {
+      const headersPath = path.resolve(this.project.root, serveTaskOptions.headersConfig);
+      if (fs.existsSync(headersPath)) {
+        headersConfig = require(headersPath);
+      } else {
+        const message = `Headers config file ${headersPath} does not exist.`;
+        return Promise.reject(new SilentError(message));
+      }
+    }
+
     let sslKey: string = null;
     let sslCert: string = null;
     if (serveTaskOptions.ssl) {
@@ -179,6 +190,15 @@ export default Task.extend({
       webpackDevServerConfiguration.publicPath = serveTaskOptions.deployUrl;
     }
 
+    if (headersConfig != null) {
+      for (const header in headersConfig) {
+        if (headersConfig.hasOwnProperty(header)) {
+          const headerVal = headersConfig[header];
+          webpackDevServerConfiguration.headers[header] = headerVal;
+        }
+      }
+    }
+
     if (serveTaskOptions.target === 'production') {
       ui.writeLine(chalk.red(stripIndents`
         ****************************************************************************************
@@ -208,11 +228,11 @@ export default Task.extend({
         }
       });
     })
-    .catch((err: Error) => {
-      if (err) {
-        this.ui.writeError('\nAn error occured during the build:\n' + ((err && err.stack) || err));
-      }
-      throw err;
-    });
+      .catch((err: Error) => {
+        if (err) {
+          this.ui.writeError('\nAn error occured during the build:\n' + ((err && err.stack) || err));
+        }
+        throw err;
+      });
   }
 });
